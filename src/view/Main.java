@@ -12,7 +12,7 @@ import model.Tile;
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) {
         primaryStage.setResizable(false);
         int size = 4;
         Game game = new Game(size);

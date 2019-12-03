@@ -43,6 +43,8 @@ public class State {
         this.h = h;
     }
 
+    public int getF() { return h + g;}
+
     public State getParent() {
         return parent;
     }
@@ -53,5 +55,16 @@ public class State {
 
     public int getH() {
         return  h;
+    }
+
+    public boolean isSolved() {
+        if (tiles[tiles.length - 1].getNumber() != 0)
+            return false;
+
+        for (int i = tiles.length - 1; i >= 0; i--) {
+            if (tiles[i].getNumber() != i + 1)
+                return false;
+        }
+        return true;
     }
 }
