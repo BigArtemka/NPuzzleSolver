@@ -7,11 +7,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 
 /**
  * @author Tatarin Esli Che
  */
-public class Tile {
+public class Tile implements Serializable {
     private int number;
     private int size;
 
@@ -48,5 +51,18 @@ public class Tile {
             stack.getChildren().addAll(rec, text);
         }
         return stack;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tile tile = (Tile) o;
+        return number == tile.number;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
     }
 }

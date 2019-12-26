@@ -32,11 +32,19 @@ public class Game {
         return tiles;
     }
 
+    public int getBlankPos() {
+        return blankPos;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
     public void newGame() {
         do {
             reset();
             shuffle();
-        } while (!isSolvable());
+        } while (!isSolvable() || isSolved());
         gameOver = false;
     }
 
@@ -76,8 +84,8 @@ public class Game {
 
     public void swap(int number) {
         Tile tile = tiles[number];
-        if (number - 1 == blankPos) { swap(tile, tiles[number - 1]); blankPos = number; }
-        else if (number + 1 == blankPos) {swap(tile, tiles[number + 1]); blankPos = number; }
+        if (number - 1 == blankPos && number % size > 0) { swap(tile, tiles[number - 1]); blankPos = number; }
+        else if (number + 1 == blankPos && number % size < 3) {swap(tile, tiles[number + 1]); blankPos = number; }
         else if (number + size == blankPos) {swap(tile, tiles[number + size]); blankPos = number; }
         else if (number - size == blankPos) {swap(tile, tiles[number - size]); blankPos = number; }
 
@@ -93,5 +101,7 @@ public class Game {
         }
         return true;
     }
+
+
 
 }
