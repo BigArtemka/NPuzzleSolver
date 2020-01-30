@@ -40,6 +40,10 @@ public class Game {
         return size;
     }
 
+    public void setSize(int size) {
+        this.size = size;
+    }
+
     public void newGame() {
         do {
             reset();

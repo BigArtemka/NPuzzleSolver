@@ -24,14 +24,6 @@ public class State implements Serializable {
         h = getH();
     }
 
-    public State(State state) {
-        this.g = state.g + 1;
-        this.parent = state;
-        this.tiles = state.tiles;
-        this.size = state.size;
-        this.blankPos = state.blankPos;
-        h = getH();
-    }
 
     public int getF() {
         return h + g;
@@ -87,14 +79,25 @@ public class State implements Serializable {
 
     public int getH() {
         int c = 0;
-        if (tiles[tiles.length - 1].getNumber() != 0)
-            c++;
-
-        for (int i = 0; i < tiles.length - 1; i++) {
-            if (tiles[i].getNumber() != i + 1)
-                c++;
+        for (int i = 0; i < tiles.length; i++) {
+            int cur = tiles[i].getNumber();
+            if (cur == 0) cur += size * size;
+            if (cur != i + 1) {
+                c += Math.abs(i/size - (cur - 1) / size) + Math.abs(i % size - (cur - 1) % size);
+            }
         }
         return h = c;
+    }
+
+    private int lc() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int s = 0; s < j; s++) {
+
+                }
+            }
+        }
+        return 1;
     }
 
     public boolean isSolved() {

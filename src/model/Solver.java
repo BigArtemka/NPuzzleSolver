@@ -1,10 +1,7 @@
 package model;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Tatarin Esli Che
@@ -13,7 +10,7 @@ public class Solver {
 
     public static Deque<State> search(Game game) throws IOException, ClassNotFoundException {
         State root = new State(game);
-        Deque<State> close = new LinkedList<>();
+        List<State> close = new ArrayList<>();
         Deque<State> open = new LinkedList<>();
         open.add(root);
         while (!open.isEmpty()) {
@@ -30,6 +27,7 @@ public class Solver {
                         open.add(neighbor);
                     }
                     else {
+                        //close.get(close.indexOf(neighbor)).setParent(neighbor.getParent());
                     }
                 }
             }
