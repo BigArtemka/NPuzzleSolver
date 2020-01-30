@@ -26,16 +26,13 @@ public class Solver {
                     if (!open.contains(neighbor)) {
                         open.add(neighbor);
                     }
-                    else {
-                        //close.get(close.indexOf(neighbor)).setParent(neighbor.getParent());
-                    }
                 }
             }
             }
         return null;
     }
 
-    public static Deque<State> getNeighbors(State state) throws IOException, ClassNotFoundException {
+    private static Deque<State> getNeighbors(State state) throws IOException, ClassNotFoundException {
         Deque<State> neigb = new LinkedList<>();
         if (state.getBlankPos() % state.getSize() > 0) {
             State state1 = state.cloneState();
@@ -64,7 +61,7 @@ public class Solver {
         return neigb;
         }
 
-        public static State getMinFState(Deque<State> list) {
+        private static State getMinFState(Deque<State> list) {
         State s = null;
         int min = Integer.MAX_VALUE;
         for (State state: list) {

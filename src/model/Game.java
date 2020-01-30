@@ -20,6 +20,7 @@ public class Game {
         tiles = new Tile[size * size];
     }
 
+
     public boolean isGameOver() {
         return gameOver;
     }
@@ -32,16 +33,12 @@ public class Game {
         return tiles;
     }
 
-    public int getBlankPos() {
+    int getBlankPos() {
         return blankPos;
     }
 
-    public int getSize() {
+    int getSize() {
         return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public void newGame() {
@@ -54,7 +51,7 @@ public class Game {
 
     private void reset() {
         for (int i = 0; i < tiles.length; i++) {
-            tiles[i] = new Tile((i + 1) % tiles.length, 60);
+            tiles[i] = new Tile((i + 1) % tiles.length, 500 / size);
         }
         blankPos = tiles.length - 1;
     }
@@ -80,7 +77,7 @@ public class Game {
         return countInversions % 2 == 0;
     }
 
-    public void swap(Tile first, Tile second) {
+    private void swap(Tile first, Tile second) {
         int tmp = first.getNumber();
         first.setNumber(second.getNumber());
         second.setNumber(tmp);
@@ -89,7 +86,7 @@ public class Game {
     public void swap(int number) {
         Tile tile = tiles[number];
         if (number - 1 == blankPos && number % size > 0) { swap(tile, tiles[number - 1]); blankPos = number; }
-        else if (number + 1 == blankPos && number % size < 3) {swap(tile, tiles[number + 1]); blankPos = number; }
+        else if (number + 1 == blankPos && number % size < size - 1) {swap(tile, tiles[number + 1]); blankPos = number; }
         else if (number + size == blankPos) {swap(tile, tiles[number + size]); blankPos = number; }
         else if (number - size == blankPos) {swap(tile, tiles[number - size]); blankPos = number; }
 
@@ -105,7 +102,4 @@ public class Game {
         }
         return true;
     }
-
-
-
 }

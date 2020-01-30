@@ -1,18 +1,27 @@
 package view;
 
 import javafx.application.Application;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Game;
+import model.Solver;
+import model.State;
 import model.Tile;
 
+import java.io.IOException;
+import java.util.Deque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -20,83 +29,105 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-       primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
         Slider slider = new Slider(2.0, 9.0, 4.0);
+        Label text = new Label("Размер поля");
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
         slider.setBlockIncrement(1.0);
         slider.setMajorTickUnit(1.0);
-        slider.setMinorTickCount(1);
+        slider.setMinorTickCount(0);
         slider.setSnapToTicks(true);
         Button btn = new Button("Новая игра");
-        FlowPane root = new FlowPane(Orientation.VERTICAL, 10, 10, slider, btn);
-        Scene scene = new Scene(root, 200, 150);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        Tile[] tiles = new Tile[1]; HBox[] h = new HBox[1]; VBox v = new VBox(); Game game = new Game(1);
+        Button btn1 = new Button("Решить");
+        VBox v = new VBox();
         AtomicInteger size = new AtomicInteger(0);
-        newGame(size, tiles, h, v, game, primaryStage, slider, btn);
-
+        final Game[] game = {newGame(size, v, primaryStage, slider, btn, btn1, text)};
+        final Tile[][] tiles = {game[0].getTiles()};
+        primaryStage.setScene(new Scene(v, 500, 600));
+        primaryStage.show();
         btn.setOnAction(event -> {
-            newGame(size, tiles, h, v, game, primaryStage, slider, btn);
+            game[0] = newGame(size, v, primaryStage, slider, btn, btn1, text);
+            tiles[0] = game[0].getTiles();
+
         });
 
         v.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->
         {
-            if (!game.isGameOver()) {
+            if (!game[0].isGameOver()) {
                 double x = event.getX();
                 double y = event.getY();
-                int column = (int) (x / tiles[0].getSize());
-                int row = (int) (y / tiles[0].getSize());
-                game.swap(row * size.get() + column);
-                fill(size.get(), tiles, h, v);
-                game.setGameOver(game.isSolved());
+                int column = (int) (x / tiles[0][0].getSize());
+                int row = (int) (y / tiles[0][0].getSize());
+                game[0].swap(row * size.get() + column);
+                fill(size.get(), tiles[0], v, slider, btn, btn1, text);
+                game[0].setGameOver(game[0].isSolved());
+            }
+        });
+
+
+        btn1.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            Deque<State> solve;
+            try {
+                solve = Solver.search(game[0]);
+                Tile[] tiles1 = solve.getFirst().getTiles();
+                fill(size.get(), tiles1, v, slider, btn, btn1, text);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
             }
         });
     }
 
 
-
-        //       v.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-        //          Deque<State> solve;
-        //          try {
-        //              solve = Solver.search(game);
-        //              Tile[] tiles1 = solve.getFirst().getTiles();
-        //              fill(size, tiles1, h, v);
-        //          } catch (IOException | ClassNotFoundException e) {
-        //              e.printStackTrace();
-        //          }
-        //         });
-        //      primaryStage.setScene(scene);
-        //      primaryStage.show();
-        //  }
-
-        private void fill ( int size, Tile[] tiles, HBox[]h, VBox v){
+    private void fill(int size, Tile[] tiles, VBox v, Slider slider, Button btn, Button btn1, Label label) {
             v.getChildren().remove(0, v.getChildren().size());
+        HBox[] h = new HBox[size + 2];
             for (int i = 0; i < tiles.length; i++) {
                 if (h[i / size] == null) h[i / size] = new HBox();
                 if (h[i / size].getChildren().size() == size) h[i / size].getChildren().remove(0, size);
-                h[i / size].getChildren().add(tiles[i].draw());
+                h[i / size].getChildren().add(draw(tiles[i]));
                 if (i % size == size - 1) v.getChildren().add(h[i / size]);
             }
-            v.getChildren().add(h[size]);
+        h[size] = new HBox(label, slider, btn);
+        v.getChildren().addAll(h[size], btn1);
         }
 
-        private void newGame(AtomicInteger size, Tile[] tiles, HBox[] h, VBox v, Game game, Stage primaryStage, Slider slider, Button btn) {
+    private StackPane draw(Tile tile) {
+        int size = tile.getSize();
+        int number = tile.getNumber();
+        Rectangle rec = new Rectangle(size, size);
+        rec.setArcWidth(size / 4);
+        rec.setArcHeight(size / 4);
+        StackPane stack = new StackPane();
+        if (number == 0) {
+            rec.setFill(Color.BLUEVIOLET);
+            stack.getChildren().add(rec);
+        } else {
+            Text text = new Text(Integer.toString(number));
+            text.setFont(Font.font("Verdana", FontWeight.BOLD, size * 0.5));
+            rec.setFill(Color.BLUE);
+            stack.getChildren().addAll(rec, text);
+        }
+        return stack;
+    }
+
+    private Game newGame(AtomicInteger size, VBox v, Stage primaryStage, Slider slider, Button btn, Button btn1, Label label) {
             size.set((int) slider.getValue());
-            game = new Game(size.get());
+        Game game = new Game(size.get());
             game.newGame();
-            tiles = game.getTiles();
-            h = new HBox[size.get() + 1];
+        Tile[] tiles = game.getTiles();
+        HBox[] h = new HBox[size.get() + 1];
             h[size.get()] = new HBox();
             h[size.get()].getChildren().addAll(slider, btn);
             primaryStage.setTitle(size.get() * size.get() - 1 + " puzzle");
-            fill(size.get(), tiles, h, v);
-            primaryStage.setScene(new Scene(v));
-            primaryStage.show();
+        if (size.get() > 4) btn1.setDisable(true);
+        else btn1.setDisable(false);
+        fill(size.get(), tiles, v, slider, btn, btn1, label);
+        return game;
         }
 
         public static void main (String[]args){
             launch(args);
         }
     }
+

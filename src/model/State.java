@@ -2,7 +2,6 @@ package model;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Tatarin Esli Che
@@ -15,7 +14,7 @@ public class State implements Serializable {
     private Tile[] tiles;
     private int size;
 
-    public State(Game game) {
+    State(Game game) {
         g = 0;
         parent = null;
         tiles = game.getTiles();
@@ -25,15 +24,15 @@ public class State implements Serializable {
     }
 
 
-    public int getF() {
+    int getF() {
         return h + g;
     }
 
-    public int getBlankPos() {
+    int getBlankPos() {
         return blankPos;
     }
 
-    public void setBlankPos(int blankPos) {
+    void setBlankPos(int blankPos) {
         this.blankPos = blankPos;
     }
 
@@ -41,18 +40,8 @@ public class State implements Serializable {
         return tiles;
     }
 
-    public State(int g, State parent, Tile[] tiles) {
-        this.g = g;
-        this.parent = parent;
-        this.tiles = tiles;
-    }
 
-
-    public void setG(int g) {
-        this.g = g;
-    }
-
-    public State cloneState() throws IOException, ClassNotFoundException {
+    State cloneState() throws IOException, ClassNotFoundException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream ous = new ObjectOutputStream(baos);
         ous.writeObject(this);
@@ -65,19 +54,15 @@ public class State implements Serializable {
         return newState;
     }
 
-    public State getParent() {
+    State getParent() {
         return parent;
     }
 
-    public int getSize() {
+    int getSize() {
         return size;
     }
 
-    public void setParent(State parent) {
-        this.parent = parent;
-    }
-
-    public int getH() {
+    private int getH() {
         int c = 0;
         for (int i = 0; i < tiles.length; i++) {
             int cur = tiles[i].getNumber();
@@ -86,26 +71,36 @@ public class State implements Serializable {
                 c += Math.abs(i/size - (cur - 1) / size) + Math.abs(i % size - (cur - 1) % size);
             }
         }
-        return h = c;
+        return h = c + lc();
     }
 
     private int lc() {
+        int sum = 0;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 for (int s = 0; s < j; s++) {
-
+                    int a = tiles[i * size + s].getNumber();
+                    int b = tiles[i * size + j].getNumber();
+                    int c = tiles[s * size + i].getNumber();
+                    int d = tiles[j * size + i].getNumber();
+                    if (a == 0) a += size * size;
+                    if (b == 0) b += size * size;
+                    if (c == 0) c += size * size;
+                    if (d == 0) d += size * size;
+                    if (a > b)
+                        sum += 2;
+                    if (c > d) sum += 2;
                 }
             }
         }
-        return 1;
+        return sum;
     }
 
-    public boolean isSolved() {
-        if (h == 0) return true;
-        else return false;
+    boolean isSolved() {
+        return h == 0;
     }
 
-    public void swap(Tile first, Tile second) {
+    void swap(Tile first, Tile second) {
         int tmp = first.getNumber();
         first.setNumber(second.getNumber());
         second.setNumber(tmp);
