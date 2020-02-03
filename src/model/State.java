@@ -68,10 +68,10 @@ public class State implements Serializable {
             int cur = tiles[i].getNumber();
             if (cur == 0) cur += size * size;
             if (cur != i + 1) {
-                c += Math.abs(i/size - (cur - 1) / size) + Math.abs(i % size - (cur - 1) % size);
+                c += Math.abs(i / size - (cur - 1) / size) + Math.abs(i % size - (cur - 1) % size);
             }
         }
-        return h = c + lc();
+        return h = c + lc() + cth();
     }
 
     private int lc() {
@@ -93,6 +93,26 @@ public class State implements Serializable {
                 }
             }
         }
+        return sum;
+    }
+
+    private int cth() {
+        int sum = 0;
+        if (tiles[0].getNumber() != 1 && tiles[0].getNumber() < size + 1) {
+            if (tiles[size].getNumber() == size + 1) sum += 2;
+        }
+        if (tiles[size - 1].getNumber() != size) {
+            if (tiles[size - 2].getNumber() == size - 1 && tiles[size - 1].getNumber() > size) sum += 2;
+            if (tiles[2 * size - 1].getNumber() == 2 * size && tiles[size - 1].getNumber() < 2 * size) sum += 2;
+        }
+        if (tiles[size * (size - 1)].getNumber() != size * (size - 1) + 1) {
+            if (tiles[size * (size - 1) + 1].getNumber() == size * (size - 1) + 2 && tiles[size * (size - 1)].getNumber() < size * (size - 1) + 2)
+                sum += 2;
+            if (tiles[size * (size - 2)].getNumber() == size * (size - 2) + 1 && tiles[size * (size - 1)].getNumber() > size * (size - 2) + 1)
+                sum += 2;
+        }
+        if (tiles[size * size - 2].getNumber() != size * size - 1 || tiles[size * (size - 1) - 1].getNumber() != size * (size - 1))
+            sum += 2;
         return sum;
     }
 

@@ -11,7 +11,7 @@ public class Solver {
     public static Deque<State> search(Game game) throws IOException, ClassNotFoundException {
         State root = new State(game);
         List<State> close = new ArrayList<>();
-        Deque<State> open = new LinkedList<>();
+        List<State> open = new ArrayList<>();
         open.add(root);
         while (!open.isEmpty()) {
             State state = getMinFState(open);
@@ -29,7 +29,7 @@ public class Solver {
                 }
             }
             }
-        return null;
+        return new LinkedList<>();
     }
 
     private static Deque<State> getNeighbors(State state) throws IOException, ClassNotFoundException {
@@ -61,7 +61,7 @@ public class Solver {
         return neigb;
         }
 
-        private static State getMinFState(Deque<State> list) {
+        private static State getMinFState(List<State> list) {
         State s = null;
         int min = Integer.MAX_VALUE;
         for (State state: list) {

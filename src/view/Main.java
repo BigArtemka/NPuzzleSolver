@@ -1,5 +1,6 @@
 package view;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,7 +22,9 @@ import model.State;
 import model.Tile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Deque;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -59,21 +62,39 @@ public class Main extends Application {
                 double y = event.getY();
                 int column = (int) (x / tiles[0][0].getSize());
                 int row = (int) (y / tiles[0][0].getSize());
-                game[0].swap(row * size.get() + column);
-                fill(size.get(), tiles[0], v, slider, btn, btn1, text);
-                game[0].setGameOver(game[0].isSolved());
+                if (row < size.get() && column < size.get()) {
+                    game[0].swap(row * size.get() + column);
+                    fill(size.get(), tiles[0], v, slider, btn, btn1, text);
+                    game[0].setGameOver(game[0].isSolved());
+                }
             }
         });
 
 
         btn1.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            Deque<State> solve;
-            try {
-                solve = Solver.search(game[0]);
-                Tile[] tiles1 = solve.getFirst().getTiles();
-                fill(size.get(), tiles1, v, slider, btn, btn1, text);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+            if (!game[0].isGameOver()) {
+                Deque<State> solve;
+                try {
+                    solve = Solver.search(game[0]);
+                    AnimationTimer at = new AnimationTimer() {
+                        private long lastUpdate = 0;
+                        @Override
+                        public void handle(long now) {
+                            if (now - lastUpdate >= 500000000) {
+                                if (solve.isEmpty()) this.stop();
+                                else {
+                                    Tile[] tiles1 = solve.pollLast().getTiles();
+                                    fill(size.get(), tiles1, v, slider, btn, btn1, text);
+                                    lastUpdate = now;
+                                }
+                            }
+                        }
+                    };
+                    at.start();
+                    game[0].setGameOver(true);
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
